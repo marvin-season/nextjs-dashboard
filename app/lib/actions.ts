@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { sql } from "@vercel/postgres";
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 const InvoiceSchema = z.object({
@@ -16,6 +16,8 @@ const InvoiceSchema = z.object({
 const CreateInvoice = InvoiceSchema.omit({ id: true, date: true });
 
 export async function createInvoice(formData: FormData) {
+  console.log(formData);
+
   const rawFormData = Object.fromEntries(formData.entries());
 
   const { customerId, status, amount } = CreateInvoice.parse(rawFormData);
@@ -27,6 +29,25 @@ export async function createInvoice(formData: FormData) {
     VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
   `;
 
-  revalidatePath('/dashboard/invoices');
-  redirect('/dashboard/invoices');
+  revalidatePath("/dashboard/invoices");
+  redirect("/dashboard/invoices");
+}
+// Use Zod to update the expected types
+const UpdateInvoice = InvoiceSchema.omit({ date: true });
+
+export async function updateInvoice(id: string, formData: FormData) {
+  const { customerId, amount, status } = UpdateInvoice.parse(
+    Object.fromEntries(formData.entries())
+  );
+
+  const amountInCents = (amount * 100).toFixed(0);
+
+  await sql`
+    UPDATE invoices
+    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+    WHERE id = ${id}
+  `;
+
+  revalidatePath("/dashboard/invoices");
+  redirect("/dashboard/invoices");
 }
