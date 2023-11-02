@@ -1,22 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useReadableData } from "./hook";
+import { useChatMessageList, useReadableData } from "./hook";
+import Chat from "@/components/Chat";
 
 export default function Page() {
-  const [streamData, updateStreamData] = useState("");
-
-  const { mutate: fetchData } = useReadableData((data) => {
-    updateStreamData((prev) => prev + data + "\n");
-  });
+  const { messages, send } = useChatMessageList();
 
   return (
     <>
-      <button className="font-bold" onClick={() => updateStreamData("")}>
-        Reset
+      <button
+        onClick={() => {
+          send("你好");
+        }}
+      >
+        Fetch
       </button>
-      <button onClick={() => fetchData()}>Fetch</button>
-      <div dangerouslySetInnerHTML={{ __html: streamData }}></div>
+      <Chat dataSource={messages} />
     </>
   );
 }

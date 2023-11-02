@@ -22,11 +22,13 @@ function iteratorToStream(iterator: any) {
   const encoder = new TextEncoder()
    
   async function* makeIterator() {
-    yield encoder.encode(`<h1 class='font-bold'>One</h1>`)
-    await sleep(1000)
-    yield encoder.encode('<h2>Two</h2>')
-    await sleep(1000)
-    yield encoder.encode('<h3>Three</h3>')
+    yield encoder.encode(`你`)
+    await sleep(600)
+    yield encoder.encode('好')
+    await sleep(500)
+    yield encoder.encode('啊')
+    await sleep(200)
+    yield encoder.encode('!')
   }
    
   export async function GET() {
