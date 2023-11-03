@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 const textDecorder = new TextDecoder();
 const controller = new AbortController();
-import { useImmer } from 'use-immer'
+import { useImmer } from "use-immer";
 
 type MessageProp = {
   id: string;
@@ -37,7 +37,7 @@ export const useChatMessageList = () => {
       if (index > -1) {
         prev[index].text = prev[index]?.text + message?.text;
       } else {
-        prev.push(message)
+        prev.push(message);
       }
     });
   };
@@ -71,26 +71,28 @@ export const useReadableData = (
   onComplete?: () => void
 ) => {
   const fetchData = () => {
-    fetch("http://localhost:3000/api/chat", { signal: controller.signal }).then(
-      async (response) => {
-        const reader = response.body?.getReader();
-        while (1) {
-          try {
-            const segemnt = await reader?.read();
-            if (segemnt) {
-              const value = textDecorder.decode(segemnt.value);
-              onRead(value);
-            }
-            if (segemnt?.done) {
-              onComplete && onComplete();
-              break;
-            }
-          } catch (error) {
-            controller.abort();
+    fetch("http://localhost:3000/api/chat", {
+      signal: controller.signal,
+      method: "POST",
+      body: JSON.stringify(Q),
+    }).then(async (response) => {
+      const reader = response.body?.getReader();
+      while (1) {
+        try {
+          const segemnt = await reader?.read();
+          if (segemnt) {
+            const value = textDecorder.decode(segemnt.value);
+            onRead(value);
           }
+          if (segemnt?.done) {
+            onComplete && onComplete();
+            break;
+          }
+        } catch (error) {
+          controller.abort();
         }
       }
-    );
+    });
   };
 
   return { mutate: fetchData };

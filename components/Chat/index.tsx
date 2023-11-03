@@ -1,10 +1,13 @@
+"use client";
+
+import { Button, Input } from "antd";
 import { useState } from "react";
-import { Button, Input, MessageList } from "react-chat-elements";
+import { MessageList } from "react-chat-elements";
 import "react-chat-elements/dist/main.css";
 
 interface ChatProps {
   dataSource: any;
-  onSend: (text: string) => void
+  onSend: (text: string) => void;
 }
 
 export default function Chat({ dataSource, onSend }: ChatProps) {
@@ -12,31 +15,33 @@ export default function Chat({ dataSource, onSend }: ChatProps) {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-indigo-200">
-        <div className="flex flex-col">
+      <div className="">
+        <div className="flex flex-col gap-4">
           <MessageList
             referance={null}
-            className="message-list h-96"
+            className="message-list h-96 bg-gradient-to-r from-indigo-200 rounded-md p-2"
             lockable={true}
             toBottomHeight={"100%"}
             dataSource={dataSource}
           />
-          <div className="flex gap-4">
+          <div className="flex flex-row gap-10 justify-between">
             <Input
-              maxHeight={50}
-              placeholder="Type here..."
               value={text}
+              placeholder="Type here..."
               onChange={(e: any) => {
                 setText(e.target.value);
               }}
-              multiline={true}
             />
+
             <Button
-              text={"Send"}
-              onClick={() => onSend(text)}
+              onClick={() => {
+                onSend(text);
+                setText("");
+              }}
               title="Send"
-            />
-            ;
+            >
+              send
+            </Button>
           </div>
         </div>
       </div>
