@@ -9,14 +9,7 @@ export default function Page() {
 
   return (
     <>
-      <button
-        onClick={() => {
-          send("你好");
-        }}
-      >
-        Fetch
-      </button>
-      <Chat dataSource={messages} />
+      <Chat dataSource={messages} onSend={send}/>
     </>
   );
 }

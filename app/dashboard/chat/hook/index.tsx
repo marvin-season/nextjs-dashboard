@@ -32,8 +32,6 @@ export const useChatMessageList = () => {
   const [messages, updateMessages] = useImmer<MessageProp[]>([]);
 
   const patchMessages = (message: MessageProp) => {
-    console.log("=====");
-
     updateMessages((prev) => {
       const index = prev.findIndex((item) => item.id === message.id);
       if (index > -1) {
