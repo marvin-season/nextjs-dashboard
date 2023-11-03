@@ -72,7 +72,7 @@ export const useReadableData = (
   onComplete?: () => void
 ) => {
   const fetchData = () => {
-    fetch("http://localhost:3000/api/chat", {
+    fetch("/api/chat", {
       signal: controller.signal,
       method: "POST",
       body: JSON.stringify(Q),
