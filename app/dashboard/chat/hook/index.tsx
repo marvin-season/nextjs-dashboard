@@ -28,6 +28,61 @@ const A: MessageProp = {
   text: "",
 };
 
+const handleReset = (message: MessageProp) => {
+  message.id = nanoid();
+  message.title = '';
+  message.text = '';
+}
+
+export const useChatMessage = (
+  url = "/api/chat",
+  onRead?: (data: string) => void,
+  onComplete?: (data?: string) => void
+) => {
+  const [message, updateMessage] = useImmer<string[]>([]);
+
+  const fetchData = async (chatMessage: MessageProp) => {
+    try {
+      const response = await fetch(url, {
+        signal: controller.signal,
+        method: "POST",
+        body: JSON.stringify(chatMessage),
+      });
+
+      const reader = response.body?.getReader();
+      while (true) {
+        try {
+          const segemnt = await reader?.read();
+
+          if (segemnt?.done) {
+            onComplete && onComplete();
+            break;
+          }
+
+          if (segemnt?.value) {
+            const value = textDecorder.decode(segemnt.value);
+
+            updateMessage((prev) => {
+              if (value) {
+                prev.push(value);
+              }
+            });
+
+            onRead && onRead(value);
+          }
+        } catch (error) {
+          controller.abort();
+          throw new Error("数据解码失败");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return { data: message, mutate: fetchData };
+};
+
 export const useChatMessageList = () => {
   const [messages, updateMessages] = useImmer<MessageProp[]>([]);
 
@@ -39,10 +94,12 @@ export const useChatMessageList = () => {
       } else {
         prev.push(message);
       }
+      console.log("prev", prev);
     });
   };
 
-  const { mutate } = useReadableData(
+  const { mutate: chatFunc } = useChatMessage(
+    "/api/chat",
     (data) => {
       const message = {
         ...A,
@@ -51,50 +108,18 @@ export const useChatMessageList = () => {
       patchMessages(message);
     },
     () => {
-      A.id = nanoid();
-      A.text = "";
+      handleReset(A);
     }
   );
 
   const send = (data: string) => {
-    Q.id = nanoid();
+    handleReset(Q);
     Q.text = data;
+    chatFunc(Q);
     updateMessages([...messages, { ...Q }]);
-    mutate();
-    return data
+
+    return data;
   };
 
   return { messages, send };
-};
-
-export const useReadableData = (
-  onRead: (message: string) => void,
-  onComplete?: () => void
-) => {
-  const fetchData = () => {
-    fetch("/api/chat", {
-      signal: controller.signal,
-      method: "POST",
-      body: JSON.stringify(Q),
-    }).then(async (response) => {
-      const reader = response.body?.getReader();
-      while (1) {
-        try {
-          const segemnt = await reader?.read();
-          if (segemnt) {
-            const value = textDecorder.decode(segemnt.value);
-            onRead(value);
-          }
-          if (segemnt?.done) {
-            onComplete && onComplete();
-            break;
-          }
-        } catch (error) {
-          controller.abort();
-        }
-      }
-    });
-  };
-
-  return { mutate: fetchData };
 };
