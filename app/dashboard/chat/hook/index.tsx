@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 const textDecorder = new TextDecoder();
 const controller = new AbortController();
+import { useImmer } from 'use-immer'
 
 type MessageProp = {
   id: string;
@@ -28,7 +29,7 @@ const A: MessageProp = {
 };
 
 export const useChatMessageList = () => {
-  const [messages, updateMessages] = useState<MessageProp[]>([]);
+  const [messages, updateMessages] = useImmer<MessageProp[]>([]);
 
   const patchMessages = (message: MessageProp) => {
     console.log("=====");
@@ -36,12 +37,9 @@ export const useChatMessageList = () => {
     updateMessages((prev) => {
       const index = prev.findIndex((item) => item.id === message.id);
       if (index > -1) {
-        console.log("messages", message.text);
         prev[index].text = prev[index]?.text + message?.text;
-        return [...prev];
       } else {
-        console.log("messages", message.text);
-        return [...prev, message];
+        prev.push(message)
       }
     });
   };
