@@ -61,6 +61,7 @@ export const useChatMessageList = () => {
     Q.text = data;
     updateMessages([...messages, { ...Q }]);
     mutate();
+    return data
   };
 
   return { messages, send };

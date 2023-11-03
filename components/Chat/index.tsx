@@ -1,17 +1,20 @@
 "use client";
 
 import { Button, Input } from "antd";
-import { useState } from "react";
+import { KeyboardEventHandler, useState } from "react";
 import { MessageList } from "react-chat-elements";
 import "react-chat-elements/dist/main.css";
 
 interface ChatProps {
   dataSource: any;
-  onSend: (text: string) => void;
+  onSend: (text: string) => string;
 }
 
 export default function Chat({ dataSource, onSend }: ChatProps) {
   const [text, setText] = useState("");
+  const handleKeyUp: KeyboardEventHandler<HTMLInputElement> = (e) => {
+    e.key === "Enter" && onSend(text) && setText("");
+  };
 
   return (
     <>
@@ -31,6 +34,7 @@ export default function Chat({ dataSource, onSend }: ChatProps) {
               onChange={(e: any) => {
                 setText(e.target.value);
               }}
+              onKeyUp={handleKeyUp}
             />
 
             <Button
